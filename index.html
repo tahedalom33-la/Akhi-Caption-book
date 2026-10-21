@@ -1,121 +1,74 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#0b0b12">
+<meta name="description" content="Caption Book — বাংলা ও ইংরেজি ক্যাপশন এক জায়গায়।">
+<link rel="manifest" href="manifest.json">
 <title>Caption Book</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#101010;color:#fff;font-family:Arial,sans-serif}
-header{text-align:center;padding:28px 14px;background:#191919;border-bottom:1px solid #333}
-header h1{margin:0;font-size:30px}
-header p{color:#bbb}
-main{max-width:720px;margin:auto;padding:16px}
-input,select,button{font:inherit;border-radius:10px;padding:12px}
-input,select{background:#222;color:white;border:1px solid #444;width:100%;margin-bottom:10px}
-.categories{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
-.categories button{background:#292929;color:#fff;border:1px solid #444}
-.categories button.active{background:#7c3aed;border-color:#7c3aed}
-.card{background:#1c1c1c;border:1px solid #333;padding:16px;border-radius:14px;margin:12px 0}
-.card p{font-size:17px;line-height:1.7;overflow-wrap:anywhere}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.actions button,.add{background:#7c3aed;color:white;border:0;cursor:pointer}
-.actions .delete{background:#333}
-h2{font-size:19px}
-small{color:#aaa}
-footer{text-align:center;color:#888;padding:20px}
+:root{color-scheme:dark;--bg:#0b0b12;--panel:#151521;--panel2:#1d1d2b;--line:#303044;--text:#f8f7ff;--muted:#b7b5c9;--accent:#a78bfa;--accent2:#7c3aed}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#20153c 0,#0b0b12 38rem);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;min-height:100vh}
+header{padding:30px 16px 22px;text-align:center;border-bottom:1px solid var(--line)}.logo{font-size:38px}h1{margin:4px 0;font-size:clamp(27px,6vw,40px)}header p{margin:6px 0;color:var(--muted)}
+main{width:min(900px,100%);margin:auto;padding:18px 14px 36px}.search{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;outline:none}.search:focus,input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+.cats{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px}.chip{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:999px;padding:9px 13px;font:inherit;cursor:pointer}.chip.active{background:var(--accent2);border-color:var(--accent2)}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0}.section-head h2{font-size:20px;margin:0}.count{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:12px}.card{background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:17px;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:165px}.tag{font-size:12px;color:#d7c7ff;background:#39265b;padding:5px 9px;border-radius:999px;align-self:flex-start}.caption{line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere;margin:0;flex:1;font-size:16px}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;cursor:pointer;background:var(--accent2);color:white}.btn.secondary{background:#2b2b3b;border:1px solid var(--line)}.btn.danger{background:#54242d}
+details{margin-top:28px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px}summary{font-weight:700;cursor:pointer;font-size:18px}.form{display:grid;gap:10px;margin-top:15px}input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#10101a;color:var(--text);font:inherit}textarea{min-height:100px;resize:vertical}.note{font-size:12px;color:var(--muted);line-height:1.6}.empty{padding:25px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#27213a;border:1px solid #6d4caf;padding:11px 16px;border-radius:12px;display:none;max-width:90vw;z-index:5}footer{text-align:center;color:var(--muted);padding:24px;font-size:13px}
 </style>
 </head>
 <body>
-<header>
-  <h1>📚 Caption Book</h1>
-  <p>তোমার মনের ভাষা, এক জায়গায় ❤️</p>
-</header>
+<header><div class="logo">📚</div><h1>Caption Book</h1><p>তোমার মনের ভাষা, এক জায়গায় ❤️</p></header>
 <main>
-  <input id="search" placeholder="🔍 ক্যাপশন খুঁজুন..." aria-label="ক্যাপশন খুঁজুন">
-  <div class="categories" id="categories"></div>
-  <h2 id="heading">সব ক্যাপশন</h2>
-  <div id="list"></div>
-  <hr style="border-color:#333;margin:24px 0">
-  <h2>✍️ নিজের ক্যাপশন যোগ কর</h2>
-  <select id="newCategory">
-    <option>Sad</option><option>Love</option>
-    <option>Attitude</option><option>Friendship</option>
-    <option>Islamic</option><option>Motivation</option>
-  </select>
-  <input id="newCaption" placeholder="এখানে ক্যাপশন লিখ..." maxlength="500">
-  <button class="add" id="add">＋ ক্যাপশন যোগ কর</button>
-  <p><small>নিজের যোগ করা ক্যাপশন এই ব্রাউজারেই সংরক্ষিত হবে।</small></p>
+  <input id="search" class="search" type="search" placeholder="🔍 ক্যাপশন খুঁজুন..." aria-label="ক্যাপশন খুঁজুন">
+  <nav id="categories" class="cats" aria-label="ক্যাপশন ক্যাটাগরি"></nav>
+  <div class="section-head"><h2 id="heading">🌟 সব ক্যাপশন</h2><span id="count" class="count"></span></div>
+  <div id="list" class="grid"></div>
+  <details>
+    <summary>✍️ নিজের ক্যাপশন যোগ করো</summary>
+    <form id="captionForm" class="form">
+      <select id="newCategory" aria-label="ক্যাটাগরি">
+        <option>Sad</option><option>Love</option><option>Attitude</option><option>Friendship</option><option>Islamic</option><option>Motivation</option><option>Bangla</option><option>English</option>
+      </select>
+      <textarea id="newCaption" maxlength="1000" placeholder="এখানে নিজের ক্যাপশন লেখো..." required></textarea>
+      <button class="btn" type="submit">＋ ক্যাপশন যোগ করো</button>
+    </form>
+    <p class="note">তোমার যোগ করা ক্যাপশন এই ডিভাইসের ব্রাউজারে সংরক্ষিত হবে। ব্রাউজারের ডেটা মুছে ফেললে সেগুলো হারাতে পারে। অন্য ডিভাইসে অটোমেটিক সিঙ্ক হবে না।</p>
+  </details>
 </main>
-<footer>Made with ❤️ | Caption Book</footer>
+<footer>Caption Book • Made with ❤️</footer>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script>
-const initial = [
- ["Sad","কিছু নীরবতা হাজারো কথার চেয়েও গভীর। 💔"],
- ["Sad","হাসির আড়ালেও অনেক গল্প লুকিয়ে থাকে। 🥀"],
- ["Sad","সব অনুভূতি ভাষায় প্রকাশ করা যায় না।"],
- ["Love","তোমার একটুখানি হাসিই আমার দিন সুন্দর করে। ❤️"],
- ["Love","কিছু মানুষ হৃদয়ের খুব কাছের হয়। 💗"],
- ["Attitude","নিজের গল্পের নায়ক নিজেই হও। 😎"],
- ["Attitude","নিজের পরিচয় নিজের কাজেই তৈরি কর। 🔥"],
- ["Friendship","সত্যিকারের বন্ধুত্ব দূরত্বে হারায় না। 🤝"],
- ["Islamic","আল্লাহর ওপর ভরসা রাখো। 🤍"],
- ["Motivation","ধীরে এগোলেও থেমে যেও না। 🌱"]
+const starter = [
+ {category:"Sad",text:"কিছু নীরবতা হাজারো কথার চেয়েও গভীর। 💔"},
+ {category:"Sad",text:"হাসির আড়ালেও অনেক গল্প লুকিয়ে থাকে। 🥀"},
+ {category:"Sad",text:"সব অনুভূতি ভাষায় প্রকাশ করা যায় না।"},
+ {category:"Love",text:"তোমার একটুখানি হাসিই আমার দিন সুন্দর করে। ❤️"},
+ {category:"Love",text:"কিছু মানুষ হৃদয়ের খুব কাছের হয়। 💗"},
+ {category:"Attitude",text:"নিজের গল্পের নায়ক নিজেই হও। 😎"},
+ {category:"Attitude",text:"নিজের পরিচয় নিজের কাজেই তৈরি কর। 🔥"},
+ {category:"Friendship",text:"সত্যিকারের বন্ধুত্ব দূরত্বে হারায় না। 🤝"},
+ {category:"Islamic",text:"আল্লাহর ওপর ভরসা রাখো। 🤍"},
+ {category:"Motivation",text:"ধীরে এগোলেও থেমে যেও না। 🌱"},
+ {category:"Bangla",text:"জীবন সুন্দর, যদি দেখার চোখটা সুন্দর হয়। ✨"},
+ {category:"English",text:"Be your own kind of amazing. ✨"}
 ];
-const key = "captionBookCustomV1";
-let custom = [];
-try { custom = JSON.parse(localStorage.getItem(key) || "[]"); } catch {}
-let selected = "সব";
-const categories = ["সব","Sad","Love","Attitude","Friendship","Islamic","Motivation"];
-const $ = id => document.getElementById(id);
-function allCaptions(){ return [...initial,...custom]; }
-function save(){ localStorage.setItem(key,JSON.stringify(custom)); }
-function drawCategories(){
- $("categories").innerHTML = "";
- categories.forEach(cat=>{
-   const b=document.createElement("button");
-   b.textContent=cat==="সব"?"🌟 সব":cat;
-   b.className=selected===cat?"active":"";
-   b.onclick=()=>{selected=cat;render();drawCategories();};
-   $("categories").appendChild(b);
- });
-}
-function render(){
- const q=$("search").value.trim().toLowerCase();
- $("heading").textContent=selected==="সব"?"সব ক্যাপশন":selected+" ক্যাপশন";
- const list=$("list");list.innerHTML="";
- const items=allCaptions().map((c,i)=>({...{cat:c[0],text:c[1]},custom:i>=initial.length,index:i-initial.length}))
- .filter(c=>(selected==="সব"||c.cat===selected)&&c.text.toLowerCase().includes(q));
- if(!items.length){list.textContent="কোনো ক্যাপশন পাওয়া যায়নি।";return;}
- items.forEach(c=>{
-   const card=document.createElement("section");card.className="card";
-   const label=document.createElement("small");label.textContent="📌 "+c.cat;
-   const p=document.createElement("p");p.textContent=c.text;
-   const actions=document.createElement("div");actions.className="actions";
-   const copy=document.createElement("button");copy.textContent="📋 Copy Caption";
-   copy.onclick=async()=>{
-     try{await navigator.clipboard.writeText(c.text);copy.textContent="✓ কপি হয়েছে";}
-     catch(e){const t=document.createElement("textarea");t.value=c.text;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();copy.textContent="✓ কপি হয়েছে";}
-     setTimeout(()=>copy.textContent="📋 Copy Caption",1400);
-   };
-   actions.appendChild(copy);
-   if(c.custom){
-     const del=document.createElement("button");del.textContent="মুছুন";del.className="delete";
-     del.onclick=()=>{custom.splice(c.index,1);save();render();};
-     actions.appendChild(del);
-   }
-   card.append(label,p,actions);list.appendChild(card);
- });
-}
+const storageKey="captionBook.userCaptions.v1";
+let userCaptions=[];try{userCaptions=JSON.parse(localStorage.getItem(storageKey)||"[]");if(!Array.isArray(userCaptions))userCaptions=[]}catch{}
+let active="সব";
+const cats=["সব","Sad","Love","Attitude","Friendship","Islamic","Motivation","Bangla","English"];
+const $=id=>document.getElementById(id);
+function toast(msg){const t=$("toast");t.textContent=msg;t.style.display="block";clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.style.display="none",1800)}
+function all(){return [...starter.map((x,i)=>({...x,id:"s"+i,custom:false})),...userCaptions.map((x,i)=>({...x,id:"u"+i,custom:true}))]}
+function save(){try{localStorage.setItem(storageKey,JSON.stringify(userCaptions))}catch{toast("সংরক্ষণ করা যায়নি—ব্রাউজার স্টোরেজ পরীক্ষা করো।")}}
+function drawCats(){const nav=$("categories");nav.replaceChildren();cats.forEach(c=>{const b=document.createElement("button");b.className="chip"+(active===c?" active":"");b.textContent=c==="সব"?"🌟 সব":c;b.onclick=()=>{active=c;drawCats();render()};nav.append(b)})}
+function render(){const q=$("search").value.trim().toLocaleLowerCase();const items=all().filter(x=>(active==="সব"||x.category===active)&&x.text.toLocaleLowerCase().includes(q));$("heading").textContent=(active==="সব"?"🌟 সব ক্যাপশন":active+" ক্যাপশন");$("count").textContent=items.length+"টি";const list=$("list");list.replaceChildren();if(!items.length){const e=document.createElement("div");e.className="empty";e.textContent="কোনো ক্যাপশন পাওয়া যায়নি।";list.append(e);return}
+items.forEach(item=>{const card=document.createElement("article");card.className="card";const tag=document.createElement("span");tag.className="tag";tag.textContent="📌 "+item.category;const p=document.createElement("p");p.className="caption";p.textContent=item.text;const actions=document.createElement("div");actions.className="actions";const copy=document.createElement("button");copy.className="btn";copy.textContent="📋 Copy Caption";copy.onclick=async()=>{try{await navigator.clipboard.writeText(item.text);toast("ক্যাপশন কপি হয়েছে!")}catch{const ta=document.createElement("textarea");ta.value=item.text;document.body.append(ta);ta.select();const ok=document.execCommand("copy");ta.remove();toast(ok?"ক্যাপশন কপি হয়েছে!":"কপি করা যায়নি—লেখাটি সিলেক্ট করে কপি করো।")}};actions.append(copy);if(item.custom){const del=document.createElement("button");del.className="btn danger";del.textContent="মুছুন";del.onclick=()=>{if(confirm("এই ক্যাপশনটি মুছে ফেলবে?")){userCaptions.splice(Number(item.id.slice(1)),1);save();render()}};actions.append(del)}card.append(tag,p,actions);list.append(card)})}
 $("search").addEventListener("input",render);
-$("add").onclick=()=>{
- const text=$("newCaption").value.trim();
- if(!text){alert("আগে একটি ক্যাপশন লিখ!");return;}
- custom.unshift([ $("newCategory").value,text ]);
- save();$("newCaption").value="";selected="সব";
- drawCategories();render();
-};
-drawCategories();render();
+$("captionForm").addEventListener("submit",e=>{e.preventDefault();const text=$("newCaption").value.trim();if(!text)return;userCaptions.unshift({category:$("newCategory").value,text});save();$("newCaption").value="";active="সব";drawCats();render();toast("নতুন ক্যাপশন যোগ হয়েছে!")});
+drawCats();render();
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
 </script>
 </body>
-  </html>
+</html>
