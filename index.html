@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111111">
+<title>Caption Book</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:#fff;font-family:Arial,sans-serif}
+header{text-align:center;padding:28px 14px;background:#191919;border-bottom:1px solid #333}
+header h1{margin:0;font-size:30px}
+header p{color:#bbb}
+main{max-width:720px;margin:auto;padding:16px}
+input,select,button{font:inherit;border-radius:10px;padding:12px}
+input,select{background:#222;color:white;border:1px solid #444;width:100%;margin-bottom:10px}
+.categories{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
+.categories button{background:#292929;color:#fff;border:1px solid #444}
+.categories button.active{background:#7c3aed;border-color:#7c3aed}
+.card{background:#1c1c1c;border:1px solid #333;padding:16px;border-radius:14px;margin:12px 0}
+.card p{font-size:17px;line-height:1.7;overflow-wrap:anywhere}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button,.add{background:#7c3aed;color:white;border:0;cursor:pointer}
+.actions .delete{background:#333}
+h2{font-size:19px}
+small{color:#aaa}
+footer{text-align:center;color:#888;padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📚 Caption Book</h1>
+  <p>তোমার মনের ভাষা, এক জায়গায় ❤️</p>
+</header>
+<main>
+  <input id="search" placeholder="🔍 ক্যাপশন খুঁজুন..." aria-label="ক্যাপশন খুঁজুন">
+  <div class="categories" id="categories"></div>
+  <h2 id="heading">সব ক্যাপশন</h2>
+  <div id="list"></div>
+  <hr style="border-color:#333;margin:24px 0">
+  <h2>✍️ নিজের ক্যাপশন যোগ কর</h2>
+  <select id="newCategory">
+    <option>Sad</option><option>Love</option>
+    <option>Attitude</option><option>Friendship</option>
+    <option>Islamic</option><option>Motivation</option>
+  </select>
+  <input id="newCaption" placeholder="এখানে ক্যাপশন লিখ..." maxlength="500">
+  <button class="add" id="add">＋ ক্যাপশন যোগ কর</button>
+  <p><small>নিজের যোগ করা ক্যাপশন এই ব্রাউজারেই সংরক্ষিত হবে।</small></p>
+</main>
+<footer>Made with ❤️ | Caption Book</footer>
+<script>
+const initial = [
+ ["Sad","কিছু নীরবতা হাজারো কথার চেয়েও গভীর। 💔"],
+ ["Sad","হাসির আড়ালেও অনেক গল্প লুকিয়ে থাকে। 🥀"],
+ ["Sad","সব অনুভূতি ভাষায় প্রকাশ করা যায় না।"],
+ ["Love","তোমার একটুখানি হাসিই আমার দিন সুন্দর করে। ❤️"],
+ ["Love","কিছু মানুষ হৃদয়ের খুব কাছের হয়। 💗"],
+ ["Attitude","নিজের গল্পের নায়ক নিজেই হও। 😎"],
+ ["Attitude","নিজের পরিচয় নিজের কাজেই তৈরি কর। 🔥"],
+ ["Friendship","সত্যিকারের বন্ধুত্ব দূরত্বে হারায় না। 🤝"],
+ ["Islamic","আল্লাহর ওপর ভরসা রাখো। 🤍"],
+ ["Motivation","ধীরে এগোলেও থেমে যেও না। 🌱"]
+];
+const key = "captionBookCustomV1";
+let custom = [];
+try { custom = JSON.parse(localStorage.getItem(key) || "[]"); } catch {}
+let selected = "সব";
+const categories = ["সব","Sad","Love","Attitude","Friendship","Islamic","Motivation"];
+const $ = id => document.getElementById(id);
+function allCaptions(){ return [...initial,...custom]; }
+function save(){ localStorage.setItem(key,JSON.stringify(custom)); }
+function drawCategories(){
+ $("categories").innerHTML = "";
+ categories.forEach(cat=>{
+   const b=document.createElement("button");
+   b.textContent=cat==="সব"?"🌟 সব":cat;
+   b.className=selected===cat?"active":"";
+   b.onclick=()=>{selected=cat;render();drawCategories();};
+   $("categories").appendChild(b);
+ });
+}
+function render(){
+ const q=$("search").value.trim().toLowerCase();
+ $("heading").textContent=selected==="সব"?"সব ক্যাপশন":selected+" ক্যাপশন";
+ const list=$("list");list.innerHTML="";
+ const items=allCaptions().map((c,i)=>({...{cat:c[0],text:c[1]},custom:i>=initial.length,index:i-initial.length}))
+ .filter(c=>(selected==="সব"||c.cat===selected)&&c.text.toLowerCase().includes(q));
+ if(!items.length){list.textContent="কোনো ক্যাপশন পাওয়া যায়নি।";return;}
+ items.forEach(c=>{
+   const card=document.createElement("section");card.className="card";
+   const label=document.createElement("small");label.textContent="📌 "+c.cat;
+   const p=document.createElement("p");p.textContent=c.text;
+   const actions=document.createElement("div");actions.className="actions";
+   const copy=document.createElement("button");copy.textContent="📋 Copy Caption";
+   copy.onclick=async()=>{
+     try{await navigator.clipboard.writeText(c.text);copy.textContent="✓ কপি হয়েছে";}
+     catch(e){const t=document.createElement("textarea");t.value=c.text;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();copy.textContent="✓ কপি হয়েছে";}
+     setTimeout(()=>copy.textContent="📋 Copy Caption",1400);
+   };
+   actions.appendChild(copy);
+   if(c.custom){
+     const del=document.createElement("button");del.textContent="মুছুন";del.className="delete";
+     del.onclick=()=>{custom.splice(c.index,1);save();render();};
+     actions.appendChild(del);
+   }
+   card.append(label,p,actions);list.appendChild(card);
+ });
+}
+$("search").addEventListener("input",render);
+$("add").onclick=()=>{
+ const text=$("newCaption").value.trim();
+ if(!text){alert("আগে একটি ক্যাপশন লিখ!");return;}
+ custom.unshift([ $("newCategory").value,text ]);
+ save();$("newCaption").value="";selected="সব";
+ drawCategories();render();
+};
+drawCategories();render();
+</script>
+</body>
+  </html>
